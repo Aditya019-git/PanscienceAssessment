@@ -26,6 +26,9 @@ frontend/vite.config.d.ts
 uploads/
 tmp/
 coverage/
+tools/
+tmp/m2-repo/
 
 # Local planning notes
 IMPLEMENTATION_PLAN.md
+backend/src/main/resources/application-local.yml
