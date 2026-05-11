@@ -2,7 +2,7 @@ spring:
   application:
     name: assessment-backend
   datasource:
-    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:panscience}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:panscience}
     username: ${POSTGRES_USER:panscience}
     password: ${POSTGRES_PASSWORD:panscience}
   jpa:
@@ -29,6 +29,8 @@ management:
         include: health,info
 
 app:
+  cors:
+    allowed-origin: ${FRONTEND_ORIGIN:http://localhost:5173}
   storage:
     upload-dir: ${APP_UPLOAD_DIR:uploads}
   openai:
@@ -36,4 +38,3 @@ app:
     model: ${OPENAI_MODEL:gpt-4.1-mini}
   transcription:
     provider: ${WHISPER_PROVIDER:openai}
-
