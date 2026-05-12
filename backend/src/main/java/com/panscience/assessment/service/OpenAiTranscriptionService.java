@@ -100,14 +100,14 @@ public class OpenAiTranscriptionService implements TranscriptionService {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record OpenAiTranscriptionResponse(
+    record OpenAiTranscriptionResponse(
         String text,
         List<OpenAiSegment> segments
     ) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record OpenAiSegment(
+    record OpenAiSegment(
         int id,
         double start,
         double end,

@@ -5,7 +5,9 @@ import com.panscience.assessment.entity.FileCategory;
 import com.panscience.assessment.entity.ProcessingStatus;
 import com.panscience.assessment.entity.StoredFile;
 import com.panscience.assessment.exception.StoredFileNotFoundException;
+import com.panscience.assessment.exception.StorageOperationException;
 import com.panscience.assessment.repository.StoredFileRepository;
+import java.nio.file.Files;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +64,26 @@ public class FileUploadService {
         return storedFileRepository.findById(id)
             .map(FileMetadataResponse::from)
             .orElseThrow(() -> new StoredFileNotFoundException(id));
+    }
+
+    @Transactional(readOnly = true)
+    public StoredFileResource loadFileContent(Long id) {
+        StoredFile storedFile = storedFileRepository.findById(id)
+            .orElseThrow(() -> new StoredFileNotFoundException(id));
+
+        var filePath = fileStorageService.resolve(storedFile.getStoragePath());
+        if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
+            throw new StorageOperationException(
+                "Stored file content could not be found for file " + id,
+                new IllegalStateException("Resolved path does not point to an existing file")
+            );
+        }
+
+        return new StoredFileResource(
+            storedFile.getOriginalName(),
+            storedFile.getContentType(),
+            filePath
+        );
     }
 
     private String safeOriginalFilename(MultipartFile file) {
