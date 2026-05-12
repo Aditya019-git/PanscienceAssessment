@@ -8,6 +8,8 @@ public interface ContentChunkRepository extends JpaRepository<ContentChunk, Long
 
     void deleteAllByFileId(Long fileId);
 
+    List<ContentChunk> findAllByFileIdOrderByIdAsc(Long fileId);
+
     List<ContentChunk> findAllByFileIdOrderByPageNumberAscIdAsc(Long fileId);
 }
 

@@ -36,6 +36,9 @@ app:
   openai:
     api-key: ${OPENAI_API_KEY:}
     model: ${OPENAI_MODEL:gpt-4.1-mini}
+    embedding-model: ${OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
   transcription:
     provider: ${WHISPER_PROVIDER:openai}
     model: ${OPENAI_TRANSCRIPTION_MODEL:whisper-1}
+  retrieval:
+    top-k: ${APP_RETRIEVAL_TOP_K:5}

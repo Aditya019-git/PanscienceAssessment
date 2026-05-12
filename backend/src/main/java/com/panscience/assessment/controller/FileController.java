@@ -3,9 +3,13 @@ package com.panscience.assessment.controller;
 import com.panscience.assessment.dto.ContentChunkResponse;
 import com.panscience.assessment.dto.FileMetadataResponse;
 import com.panscience.assessment.dto.FileProcessingResponse;
+import com.panscience.assessment.dto.QuestionAnswerRequest;
+import com.panscience.assessment.dto.QuestionAnswerResponse;
 import com.panscience.assessment.dto.TranscriptSegmentResponse;
 import com.panscience.assessment.service.FileProcessingService;
 import com.panscience.assessment.service.FileUploadService;
+import com.panscience.assessment.service.QuestionAnswerService;
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.MediaType;
@@ -13,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,13 +29,16 @@ public class FileController {
 
     private final FileUploadService fileUploadService;
     private final FileProcessingService fileProcessingService;
+    private final QuestionAnswerService questionAnswerService;
 
     public FileController(
         FileUploadService fileUploadService,
-        FileProcessingService fileProcessingService
+        FileProcessingService fileProcessingService,
+        QuestionAnswerService questionAnswerService
     ) {
         this.fileUploadService = fileUploadService;
         this.fileProcessingService = fileProcessingService;
+        this.questionAnswerService = questionAnswerService;
     }
 
     @PostMapping(
@@ -66,6 +74,18 @@ public class FileController {
     @GetMapping(value = "/{id}/segments", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<TranscriptSegmentResponse> listTranscriptSegments(@PathVariable Long id) {
         return fileProcessingService.listTranscriptSegments(id);
+    }
+
+    @PostMapping(
+        value = "/{id}/questions",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public QuestionAnswerResponse answerQuestion(
+        @PathVariable Long id,
+        @Valid @RequestBody QuestionAnswerRequest request
+    ) {
+        return questionAnswerService.answerQuestion(id, request.question());
     }
 }
 

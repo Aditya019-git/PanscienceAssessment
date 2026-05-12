@@ -34,8 +34,10 @@ services:
       FRONTEND_ORIGIN: http://localhost:5173
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
       WHISPER_PROVIDER: ${WHISPER_PROVIDER:-openai}
       OPENAI_TRANSCRIPTION_MODEL: ${OPENAI_TRANSCRIPTION_MODEL:-whisper-1}
+      APP_RETRIEVAL_TOP_K: ${APP_RETRIEVAL_TOP_K:-5}
     ports:
       - "8080:8080"
     volumes:

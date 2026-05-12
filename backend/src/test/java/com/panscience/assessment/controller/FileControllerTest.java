@@ -12,6 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.panscience.assessment.dto.ContentChunkResponse;
 import com.panscience.assessment.dto.FileMetadataResponse;
 import com.panscience.assessment.dto.FileProcessingResponse;
+import com.panscience.assessment.dto.QuestionAnswerResponse;
+import com.panscience.assessment.dto.AnswerSourceResponse;
 import com.panscience.assessment.dto.TranscriptSegmentResponse;
 import com.panscience.assessment.entity.FileCategory;
 import com.panscience.assessment.entity.ProcessingStatus;
@@ -19,6 +21,7 @@ import com.panscience.assessment.exception.GlobalExceptionHandler;
 import com.panscience.assessment.exception.StoredFileNotFoundException;
 import com.panscience.assessment.service.FileProcessingService;
 import com.panscience.assessment.service.FileUploadService;
+import com.panscience.assessment.service.QuestionAnswerService;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -42,6 +45,9 @@ class FileControllerTest {
 
     @MockBean
     private FileProcessingService fileProcessingService;
+
+    @MockBean
+    private QuestionAnswerService questionAnswerService;
 
     @Test
     void uploadsFileAndReturnsCreatedResponse() throws Exception {
@@ -114,6 +120,40 @@ class FileControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].sequenceNumber").value(1))
             .andExpect(jsonPath("$[0].segmentText").value("Hello there"));
+    }
+
+    @Test
+    void answersQuestionForProcessedFile() throws Exception {
+        when(questionAnswerService.answerQuestion(1L, "What is this file about?")).thenReturn(
+            new QuestionAnswerResponse(
+                1L,
+                "What is this file about?",
+                "This file explains the upload flow [1].",
+                null,
+                List.of(new AnswerSourceResponse(1, 10L, "Upload flow overview", 1, null, null, 0.913))
+            )
+        );
+
+        mockMvc.perform(
+                post("/api/files/1/questions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"question\":\"What is this file about?\"}")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.answer").value("This file explains the upload flow [1]."))
+            .andExpect(jsonPath("$.sources[0].sourceNumber").value(1))
+            .andExpect(jsonPath("$.sources[0].pageNumber").value(1));
+    }
+
+    @Test
+    void rejectsBlankQuestion() throws Exception {
+        mockMvc.perform(
+                post("/api/files/1/questions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"question\":\"   \"}")
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("BAD_REQUEST"));
     }
 
     private FileMetadataResponse sampleResponse() {
