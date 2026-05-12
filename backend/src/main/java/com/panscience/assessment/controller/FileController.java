@@ -10,9 +10,13 @@ import com.panscience.assessment.dto.TranscriptSegmentResponse;
 import com.panscience.assessment.service.FileProcessingService;
 import com.panscience.assessment.service.FileUploadService;
 import com.panscience.assessment.service.QuestionAnswerService;
+import com.panscience.assessment.service.StoredFileResource;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import org.springframework.core.io.PathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,9 +24,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/api/files")
@@ -62,6 +68,18 @@ public class FileController {
         return fileUploadService.getFile(id);
     }
 
+    @GetMapping(value = "/{id}/content")
+    public ResponseEntity<Resource> getFileContent(@PathVariable Long id) {
+        StoredFileResource fileResource = fileUploadService.loadFileContent(id);
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(fileResource.contentType()))
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "inline; filename=\"" + fileResource.originalName().replace("\"", "") + "\""
+            )
+            .body(new PathResource(fileResource.path()));
+    }
+
     @PostMapping(value = "/{id}/process", produces = MediaType.APPLICATION_JSON_VALUE)
     public FileProcessingResponse processFile(@PathVariable Long id) {
         return fileProcessingService.processFile(id);
@@ -93,5 +111,12 @@ public class FileController {
     ) {
         return questionAnswerService.answerQuestion(id, request.question());
     }
-}
 
+    @GetMapping(value = "/{id}/questions/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> answerQuestionStream(
+        @PathVariable Long id,
+        @RequestParam String question
+    ) {
+        return questionAnswerService.streamAnswer(id, question);
+    }
+}

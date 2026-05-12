@@ -37,6 +37,51 @@ class FileTypeClassifierTest {
     }
 
     @Test
+    void classifiesVideoUsingContentType() {
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "movie.mov",
+            "video/mp4",
+            "video-content".getBytes()
+        );
+        assertThat(fileTypeClassifier.classify(file)).isEqualTo(FileCategory.VIDEO);
+    }
+
+    @Test
+    void handlesNullContentTypeAndNoExtension() {
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "unknown",
+            null,
+            "content".getBytes()
+        );
+        assertThatThrownBy(() -> fileTypeClassifier.classify(file))
+            .isInstanceOf(UnsupportedFileTypeException.class);
+    }
+
+    @Test
+    void handlesEmptyFilename() {
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "",
+            "audio/wav",
+            "content".getBytes()
+        );
+        assertThat(fileTypeClassifier.classify(file)).isEqualTo(FileCategory.AUDIO);
+    }
+
+    @Test
+    void classifiesMixedCaseExtensions() {
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "CHART.PDF",
+            "application/octet-stream",
+            "pdf-content".getBytes()
+        );
+        assertThat(fileTypeClassifier.classify(file)).isEqualTo(FileCategory.PDF);
+    }
+
+    @Test
     void rejectsUnsupportedFileTypes() {
         MockMultipartFile file = new MockMultipartFile(
             "file",

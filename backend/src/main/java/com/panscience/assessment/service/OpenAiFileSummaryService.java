@@ -128,21 +128,21 @@ public class OpenAiFileSummaryService implements FileSummaryService {
         return "This media file covers: " + normalized;
     }
 
-    private record ChatCompletionRequest(
+    record ChatCompletionRequest(
         String model,
         List<ChatMessage> messages,
         double temperature
     ) {
     }
 
-    private record ChatMessage(String role, String content) {
+    record ChatMessage(String role, String content) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record OpenAiChatResponse(List<Choice> choices) {
+    record OpenAiChatResponse(List<Choice> choices) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record Choice(ChatMessage message) {
+    record Choice(ChatMessage message) {
     }
 }

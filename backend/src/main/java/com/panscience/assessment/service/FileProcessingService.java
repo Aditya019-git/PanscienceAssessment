@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 
 @Service
 public class FileProcessingService {
@@ -92,6 +93,7 @@ public class FileProcessingService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "fileSummaries", key = "#fileId")
     public FileSummaryResponse getSummary(Long fileId) {
         StoredFile storedFile = storedFileRepository.findById(fileId)
             .orElseThrow(() -> new StoredFileNotFoundException(fileId));

@@ -1,7 +1,7 @@
 package com.panscience.assessment.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
+import com.panscience.assessment.exception.FileProcessingException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,6 +36,15 @@ class PdfExtractionServiceTest {
         assertThat(extractedChunks.get(1).text()).contains("Page two");
 
         Files.deleteIfExists(pdfPath);
+    }
+
+    @Test
+    void throwsFileProcessingExceptionOnInvalidPdf() {
+        Path invalidPath = Path.of("non-existent.pdf");
+        
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> pdfExtractionService.extract(invalidPath))
+            .isInstanceOf(FileProcessingException.class)
+            .hasMessageContaining("Failed to extract text");
     }
 
     private PDPage pageWithText(PDDocument document, String text) throws IOException {
