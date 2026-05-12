@@ -46,5 +46,9 @@ public class FileStorageService {
             throw new StorageOperationException("Failed to store uploaded file " + originalFilename, exception);
         }
     }
+
+    public Path resolve(String relativePath) {
+        return rootDirectory.resolve(relativePath).normalize();
+    }
 }
 

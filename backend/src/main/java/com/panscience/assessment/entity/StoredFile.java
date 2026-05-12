@@ -45,6 +45,9 @@ public class StoredFile {
     @Column(name = "summary")
     private String summary;
 
+    @Column(name = "processing_error")
+    private String processingError;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -121,6 +124,14 @@ public class StoredFile {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public String getProcessingError() {
+        return processingError;
+    }
+
+    public void setProcessingError(String processingError) {
+        this.processingError = processingError;
     }
 
     public Instant getCreatedAt() {

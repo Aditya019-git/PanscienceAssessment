@@ -14,6 +14,7 @@ public record FileMetadataResponse(
     ProcessingStatus processingStatus,
     String storagePath,
     String summary,
+    String processingError,
     Instant createdAt
 ) {
 
@@ -27,6 +28,7 @@ public record FileMetadataResponse(
             storedFile.getProcessingStatus(),
             storedFile.getStoragePath(),
             storedFile.getSummary(),
+            storedFile.getProcessingError(),
             storedFile.getCreatedAt()
         );
     }

@@ -5,7 +5,7 @@ AI-powered document and multimedia Q&A web application built for the SDE-1 progr
 ## Target Stack
 
 - Backend: Spring Boot
-- Frontend: React + Vite + TypeScript
+- Frontend: React + Vite + JavaScript
 - Storage: PostgreSQL
 - AI: OpenAI API
 - Transcription: Whisper / OpenAI ASR or Deepgram
@@ -43,4 +43,3 @@ frontend/  React application
 4. Q&A, summaries, and timestamps
 5. Streaming, auth, and Redis
 6. Tests, CI, and delivery polish
-
