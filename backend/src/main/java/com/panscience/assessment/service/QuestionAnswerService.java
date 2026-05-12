@@ -94,10 +94,13 @@ public class QuestionAnswerService {
         }
 
         if (answerGenerationService.isAvailable()) {
-            return answerGenerationService.streamAnswer(storedFile, normalizedQuestion, retrievedChunks);
+            return Flux.concat(
+                answerGenerationService.streamAnswer(storedFile, normalizedQuestion, retrievedChunks),
+                Flux.just("[DONE]")
+            );
         }
 
-        return Flux.just(fallbackAnswer(toSourceResponses(retrievedChunks), false));
+        return Flux.just(fallbackAnswer(toSourceResponses(retrievedChunks), false), "[DONE]");
     }
 
     private StoredFile findStoredFile(Long fileId) {

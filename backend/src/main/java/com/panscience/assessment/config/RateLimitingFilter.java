@@ -31,15 +31,20 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         String clientIp = request.getRemoteAddr();
         String key = "rate_limit:" + clientIp;
 
-        Long count = redisTemplate.opsForValue().increment(key);
-        if (count != null && count == 1) {
-            redisTemplate.expire(key, 1, TimeUnit.MINUTES);
-        }
+        try {
+            Long count = redisTemplate.opsForValue().increment(key);
+            if (count != null && count == 1) {
+                redisTemplate.expire(key, 1, TimeUnit.MINUTES);
+            }
 
-        if (count != null && count > MAX_REQUESTS_PER_MINUTE) {
-            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            response.getWriter().write("Too many requests. Please try again later.");
-            return;
+            if (count != null && count > MAX_REQUESTS_PER_MINUTE) {
+                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+                response.getWriter().write("Too many requests. Please try again later.");
+                return;
+            }
+        } catch (Exception e) {
+            // Redis is unavailable, skip rate limiting for now
+            // logger.warn("Redis is unavailable for rate limiting: {}. Proceeding without limit.", e.getMessage());
         }
 
         filterChain.doFilter(request, response);

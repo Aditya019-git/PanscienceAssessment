@@ -23,7 +23,7 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
   cache:
-    type: redis
+    type: simple
     redis:
       time-to-live: 3600000
       cache-null-values: false
@@ -43,8 +43,8 @@ app:
   storage:
     upload-dir: ${APP_UPLOAD_DIR:uploads}
   openai:
-    api-key: ${OPENAI_API_KEY:}
-    model: ${OPENAI_MODEL:gpt-4.1-mini}
+    api-key: ${OPENAI_API_KEY}
+    model: ${OPENAI_MODEL:gpt-4o-mini}
     embedding-model: ${OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
   transcription:
     provider: ${WHISPER_PROVIDER:openai}

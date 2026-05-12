@@ -116,7 +116,8 @@ public class OpenAiAnswerGenerationService implements AnswerGenerationService {
             .map(response -> {
                 var delta = response.choices().get(0).delta();
                 return delta != null && delta.content() != null ? delta.content() : "";
-            });
+            })
+            .onErrorResume(e -> Flux.just("\n\n[Error: " + e.getMessage() + "]"));
     }
 
     private String buildPrompt(StoredFile storedFile, String question, List<RetrievedChunk> retrievedChunks) {

@@ -31,3 +31,7 @@ tmp/m2-repo/
 # Local planning notes
 IMPLEMENTATION_PLAN.md
 backend/src/main/resources/application-local.yml
+
+# Assignment & Temporary
+SDE-1_ Programming Assignment.pdf
+*.class
