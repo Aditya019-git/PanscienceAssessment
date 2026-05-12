@@ -11,8 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class FileTypeClassifier {
 
-    private static final Set<String> AUDIO_EXTENSIONS = Set.of("mp3", "wav", "m4a", "aac", "ogg", "flac");
-    private static final Set<String> VIDEO_EXTENSIONS = Set.of("mp4", "mov", "avi", "mkv", "webm", "mpeg");
+    private static final Set<String> AUDIO_EXTENSIONS = Set.of("mp3", "wav", "m4a", "mpga");
+    private static final Set<String> VIDEO_EXTENSIONS = Set.of("mp4", "mpeg", "webm");
 
     public FileCategory classify(MultipartFile file) {
         String contentType = safeContentType(file.getContentType());

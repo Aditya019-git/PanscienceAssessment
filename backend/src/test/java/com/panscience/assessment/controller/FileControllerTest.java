@@ -4,15 +4,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.panscience.assessment.dto.ContentChunkResponse;
 import com.panscience.assessment.dto.FileMetadataResponse;
+import com.panscience.assessment.dto.FileProcessingResponse;
+import com.panscience.assessment.dto.TranscriptSegmentResponse;
 import com.panscience.assessment.entity.FileCategory;
 import com.panscience.assessment.entity.ProcessingStatus;
 import com.panscience.assessment.exception.GlobalExceptionHandler;
 import com.panscience.assessment.exception.StoredFileNotFoundException;
+import com.panscience.assessment.service.FileProcessingService;
 import com.panscience.assessment.service.FileUploadService;
 import java.time.Instant;
 import java.util.List;
@@ -34,6 +39,9 @@ class FileControllerTest {
 
     @MockBean
     private FileUploadService fileUploadService;
+
+    @MockBean
+    private FileProcessingService fileProcessingService;
 
     @Test
     void uploadsFileAndReturnsCreatedResponse() throws Exception {
@@ -72,6 +80,42 @@ class FileControllerTest {
             .andExpect(jsonPath("$.code").value("FILE_NOT_FOUND"));
     }
 
+    @Test
+    void processesFile() throws Exception {
+        when(fileProcessingService.processFile(1L)).thenReturn(
+            new FileProcessingResponse(1L, ProcessingStatus.READY, 2, 0, "Extracted 2 content chunks from the PDF")
+        );
+
+        mockMvc.perform(post("/api/files/1/process"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.processingStatus").value("READY"))
+            .andExpect(jsonPath("$.chunkCount").value(2));
+    }
+
+    @Test
+    void listsFileChunks() throws Exception {
+        when(fileProcessingService.listChunks(1L)).thenReturn(
+            List.of(new ContentChunkResponse(10L, "Page one text", 1, null, null))
+        );
+
+        mockMvc.perform(get("/api/files/1/chunks"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].pageNumber").value(1))
+            .andExpect(jsonPath("$[0].chunkText").value("Page one text"));
+    }
+
+    @Test
+    void listsTranscriptSegments() throws Exception {
+        when(fileProcessingService.listTranscriptSegments(2L)).thenReturn(
+            List.of(new TranscriptSegmentResponse(20L, "Hello there", 0.0, 1.4, 1))
+        );
+
+        mockMvc.perform(get("/api/files/2/segments"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].sequenceNumber").value(1))
+            .andExpect(jsonPath("$[0].segmentText").value("Hello there"));
+    }
+
     private FileMetadataResponse sampleResponse() {
         return new FileMetadataResponse(
             1L,
@@ -81,6 +125,7 @@ class FileControllerTest {
             FileCategory.PDF,
             ProcessingStatus.UPLOADED,
             "pdf/stored-spec.pdf",
+            null,
             null,
             Instant.parse("2026-05-11T12:00:00Z")
         );

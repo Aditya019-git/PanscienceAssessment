@@ -35,6 +35,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
       WHISPER_PROVIDER: ${WHISPER_PROVIDER:-openai}
+      OPENAI_TRANSCRIPTION_MODEL: ${OPENAI_TRANSCRIPTION_MODEL:-whisper-1}
     ports:
       - "8080:8080"
     volumes:

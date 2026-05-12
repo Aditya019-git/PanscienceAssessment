@@ -1,6 +1,10 @@
 package com.panscience.assessment.controller;
 
+import com.panscience.assessment.dto.ContentChunkResponse;
 import com.panscience.assessment.dto.FileMetadataResponse;
+import com.panscience.assessment.dto.FileProcessingResponse;
+import com.panscience.assessment.dto.TranscriptSegmentResponse;
+import com.panscience.assessment.service.FileProcessingService;
 import com.panscience.assessment.service.FileUploadService;
 import java.net.URI;
 import java.util.List;
@@ -19,9 +23,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileController {
 
     private final FileUploadService fileUploadService;
+    private final FileProcessingService fileProcessingService;
 
-    public FileController(FileUploadService fileUploadService) {
+    public FileController(
+        FileUploadService fileUploadService,
+        FileProcessingService fileProcessingService
+    ) {
         this.fileUploadService = fileUploadService;
+        this.fileProcessingService = fileProcessingService;
     }
 
     @PostMapping(
@@ -42,6 +51,21 @@ public class FileController {
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public FileMetadataResponse getFile(@PathVariable Long id) {
         return fileUploadService.getFile(id);
+    }
+
+    @PostMapping(value = "/{id}/process", produces = MediaType.APPLICATION_JSON_VALUE)
+    public FileProcessingResponse processFile(@PathVariable Long id) {
+        return fileProcessingService.processFile(id);
+    }
+
+    @GetMapping(value = "/{id}/chunks", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ContentChunkResponse> listChunks(@PathVariable Long id) {
+        return fileProcessingService.listChunks(id);
+    }
+
+    @GetMapping(value = "/{id}/segments", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<TranscriptSegmentResponse> listTranscriptSegments(@PathVariable Long id) {
+        return fileProcessingService.listTranscriptSegments(id);
     }
 }
 

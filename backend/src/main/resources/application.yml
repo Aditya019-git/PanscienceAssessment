@@ -38,3 +38,4 @@ app:
     model: ${OPENAI_MODEL:gpt-4.1-mini}
   transcription:
     provider: ${WHISPER_PROVIDER:openai}
+    model: ${OPENAI_TRANSCRIPTION_MODEL:whisper-1}
