@@ -3,6 +3,7 @@ package com.panscience.assessment.controller;
 import com.panscience.assessment.dto.ContentChunkResponse;
 import com.panscience.assessment.dto.FileMetadataResponse;
 import com.panscience.assessment.dto.FileProcessingResponse;
+import com.panscience.assessment.dto.FileSummaryResponse;
 import com.panscience.assessment.dto.QuestionAnswerRequest;
 import com.panscience.assessment.dto.QuestionAnswerResponse;
 import com.panscience.assessment.dto.TranscriptSegmentResponse;
@@ -74,6 +75,11 @@ public class FileController {
     @GetMapping(value = "/{id}/segments", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<TranscriptSegmentResponse> listTranscriptSegments(@PathVariable Long id) {
         return fileProcessingService.listTranscriptSegments(id);
+    }
+
+    @GetMapping(value = "/{id}/summary", produces = MediaType.APPLICATION_JSON_VALUE)
+    public FileSummaryResponse getSummary(@PathVariable Long id) {
+        return fileProcessingService.getSummary(id);
     }
 
     @PostMapping(

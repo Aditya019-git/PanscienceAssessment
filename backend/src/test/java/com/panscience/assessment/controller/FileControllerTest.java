@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.panscience.assessment.dto.ContentChunkResponse;
 import com.panscience.assessment.dto.FileMetadataResponse;
 import com.panscience.assessment.dto.FileProcessingResponse;
+import com.panscience.assessment.dto.FileSummaryResponse;
 import com.panscience.assessment.dto.QuestionAnswerResponse;
 import com.panscience.assessment.dto.AnswerSourceResponse;
 import com.panscience.assessment.dto.TranscriptSegmentResponse;
@@ -120,6 +121,18 @@ class FileControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].sequenceNumber").value(1))
             .andExpect(jsonPath("$[0].segmentText").value("Hello there"));
+    }
+
+    @Test
+    void returnsStoredSummary() throws Exception {
+        when(fileProcessingService.getSummary(1L)).thenReturn(
+            new FileSummaryResponse(1L, ProcessingStatus.READY, "This PDF explains the upload and retrieval flow.")
+        );
+
+        mockMvc.perform(get("/api/files/1/summary"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.processingStatus").value("READY"))
+            .andExpect(jsonPath("$.summary").value("This PDF explains the upload and retrieval flow."));
     }
 
     @Test
