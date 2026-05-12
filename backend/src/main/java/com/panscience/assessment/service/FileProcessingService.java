@@ -3,6 +3,7 @@ package com.panscience.assessment.service;
 import com.panscience.assessment.dto.ContentChunkResponse;
 import com.panscience.assessment.dto.FileMetadataResponse;
 import com.panscience.assessment.dto.FileProcessingResponse;
+import com.panscience.assessment.dto.FileSummaryResponse;
 import com.panscience.assessment.dto.TranscriptSegmentResponse;
 import com.panscience.assessment.entity.ContentChunk;
 import com.panscience.assessment.entity.FileCategory;
@@ -30,6 +31,7 @@ public class FileProcessingService {
     private final FileStorageService fileStorageService;
     private final PdfExtractionService pdfExtractionService;
     private final TranscriptionService transcriptionService;
+    private final FileSummaryService fileSummaryService;
 
     public FileProcessingService(
         StoredFileRepository storedFileRepository,
@@ -37,7 +39,8 @@ public class FileProcessingService {
         TranscriptSegmentRepository transcriptSegmentRepository,
         FileStorageService fileStorageService,
         PdfExtractionService pdfExtractionService,
-        TranscriptionService transcriptionService
+        TranscriptionService transcriptionService,
+        FileSummaryService fileSummaryService
     ) {
         this.storedFileRepository = storedFileRepository;
         this.contentChunkRepository = contentChunkRepository;
@@ -45,6 +48,7 @@ public class FileProcessingService {
         this.fileStorageService = fileStorageService;
         this.pdfExtractionService = pdfExtractionService;
         this.transcriptionService = transcriptionService;
+        this.fileSummaryService = fileSummaryService;
     }
 
     @Transactional
@@ -88,6 +92,17 @@ public class FileProcessingService {
     }
 
     @Transactional(readOnly = true)
+    public FileSummaryResponse getSummary(Long fileId) {
+        StoredFile storedFile = storedFileRepository.findById(fileId)
+            .orElseThrow(() -> new StoredFileNotFoundException(fileId));
+        return new FileSummaryResponse(
+            storedFile.getId(),
+            storedFile.getProcessingStatus(),
+            storedFile.getSummary()
+        );
+    }
+
+    @Transactional(readOnly = true)
     public FileMetadataResponse getFileMetadata(Long fileId) {
         return storedFileRepository.findById(fileId)
             .map(FileMetadataResponse::from)
@@ -112,6 +127,10 @@ public class FileProcessingService {
             .toList();
 
         contentChunkRepository.saveAll(persistentChunks);
+        storedFile.setSummary(fileSummaryService.generateSummary(
+            storedFile,
+            persistentChunks.stream().map(ContentChunk::getChunkText).toList()
+        ));
         storedFile.setProcessingStatus(ProcessingStatus.READY);
         storedFile.setProcessingError(null);
         storedFileRepository.save(storedFile);
@@ -168,6 +187,10 @@ public class FileProcessingService {
 
         transcriptSegmentRepository.saveAll(segments);
         contentChunkRepository.saveAll(chunks);
+        storedFile.setSummary(fileSummaryService.generateSummary(
+            storedFile,
+            segments.stream().map(TranscriptSegment::getSegmentText).toList()
+        ));
         storedFile.setProcessingStatus(ProcessingStatus.READY);
         storedFile.setProcessingError(null);
         storedFileRepository.save(storedFile);

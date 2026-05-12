@@ -19,6 +19,7 @@ Implemented so far:
 - File upload and metadata persistence
 - PDF extraction and media transcription pipeline
 - Retrieval-ready chunk storage with grounded Q&A endpoint
+- Per-file summary generation and summary retrieval endpoint
 - Docker Compose and GitHub Actions baseline
 
 ## Repository Layout
