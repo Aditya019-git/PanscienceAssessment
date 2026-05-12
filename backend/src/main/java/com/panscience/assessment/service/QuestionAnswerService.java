@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import reactor.core.publisher.Flux;
+
 @Service
 public class QuestionAnswerService {
 
@@ -36,8 +38,7 @@ public class QuestionAnswerService {
 
     @Transactional
     public QuestionAnswerResponse answerQuestion(Long fileId, String question) {
-        StoredFile storedFile = storedFileRepository.findById(fileId)
-            .orElseThrow(() -> new StoredFileNotFoundException(fileId));
+        StoredFile storedFile = findStoredFile(fileId);
 
         if (storedFile.getProcessingStatus() != ProcessingStatus.READY) {
             throw new FileNotReadyException(fileId, storedFile.getProcessingStatus());
@@ -71,6 +72,37 @@ public class QuestionAnswerService {
             suggestedPlaybackStartTime,
             sources
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Flux<String> streamAnswer(Long fileId, String question) {
+        StoredFile storedFile = findStoredFile(fileId);
+
+        if (storedFile.getProcessingStatus() != ProcessingStatus.READY) {
+            return Flux.error(new FileNotReadyException(fileId, storedFile.getProcessingStatus()));
+        }
+
+        String normalizedQuestion = question == null ? "" : question.trim();
+        List<RetrievedChunk> retrievedChunks = contentRetrievalService.retrieveRelevantChunks(
+            fileId,
+            normalizedQuestion,
+            topK
+        );
+
+        if (retrievedChunks.isEmpty()) {
+            return Flux.just("I could not find relevant content in the uploaded file for that question.");
+        }
+
+        if (answerGenerationService.isAvailable()) {
+            return answerGenerationService.streamAnswer(storedFile, normalizedQuestion, retrievedChunks);
+        }
+
+        return Flux.just(fallbackAnswer(toSourceResponses(retrievedChunks), false));
+    }
+
+    private StoredFile findStoredFile(Long fileId) {
+        return storedFileRepository.findById(fileId)
+            .orElseThrow(() -> new StoredFileNotFoundException(fileId));
     }
 
     private String buildAnswer(

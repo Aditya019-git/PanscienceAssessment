@@ -64,7 +64,7 @@ public class OpenAiEmbeddingService implements EmbeddingService {
             .toList();
     }
 
-    private record OpenAiEmbeddingsRequest(
+    record OpenAiEmbeddingsRequest(
         List<String> input,
         String model,
         String encoding_format
@@ -72,10 +72,10 @@ public class OpenAiEmbeddingService implements EmbeddingService {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record OpenAiEmbeddingsResponse(List<OpenAiEmbeddingData> data) {
+    record OpenAiEmbeddingsResponse(List<OpenAiEmbeddingData> data) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record OpenAiEmbeddingData(List<Double> embedding) {
+    record OpenAiEmbeddingData(List<Double> embedding) {
     }
 }
