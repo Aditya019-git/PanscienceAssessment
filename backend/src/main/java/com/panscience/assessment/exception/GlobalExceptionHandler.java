@@ -5,6 +5,7 @@ import java.time.Instant;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -18,9 +19,23 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, "FILE_NOT_FOUND", exception.getMessage());
     }
 
+    @ExceptionHandler(FileNotReadyException.class)
+    public ResponseEntity<ApiErrorResponse> handleFileNotReady(FileNotReadyException exception) {
+        return build(HttpStatus.CONFLICT, "FILE_NOT_READY", exception.getMessage());
+    }
+
     @ExceptionHandler(UnsupportedFileTypeException.class)
     public ResponseEntity<ApiErrorResponse> handleUnsupportedType(UnsupportedFileTypeException exception) {
         return build(HttpStatus.BAD_REQUEST, "UNSUPPORTED_FILE_TYPE", exception.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException exception) {
+        String message = exception.getBindingResult().getFieldErrors().stream()
+            .findFirst()
+            .map(error -> error.getDefaultMessage() == null ? "Validation failed" : error.getDefaultMessage())
+            .orElse("Validation failed");
+        return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", message);
     }
 
     @ExceptionHandler({

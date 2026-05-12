@@ -13,13 +13,13 @@ AI-powered document and multimedia Q&A web application built for the SDE-1 progr
 
 ## Current Status
 
-Phase 1 scaffold is in place:
+Implemented so far:
 
-- Spring Boot backend structure
-- React frontend structure
-- Docker and Docker Compose skeleton
-- GitHub Actions CI skeleton
-- Environment template
+- Spring Boot and React project scaffold
+- File upload and metadata persistence
+- PDF extraction and media transcription pipeline
+- Retrieval-ready chunk storage with grounded Q&A endpoint
+- Docker Compose and GitHub Actions baseline
 
 ## Repository Layout
 
