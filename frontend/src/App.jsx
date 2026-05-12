@@ -12,8 +12,26 @@ import { MediaPreviewPanel } from './components/MediaPreviewPanel';
 import { QuestionPanel } from './components/QuestionPanel';
 import { SummaryPanel } from './components/SummaryPanel';
 import { UploadPanel } from './components/UploadPanel';
+import { AuthPanel } from './components/AuthPanel';
 
 function App() {
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [userEmail, setUserEmail] = useState(localStorage.getItem('userEmail') || '');
+
+  function handleLogin(newToken, email) {
+    setToken(newToken);
+    setUserEmail(email);
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('userEmail', email);
+  }
+
+  function handleLogout() {
+    setToken('');
+    setUserEmail('');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userEmail');
+  }
+
   const mediaRef = useRef(null);
   const [files, setFiles] = useState([]);
   const [selectedFileId, setSelectedFileId] = useState(null);
@@ -40,8 +58,10 @@ function App() {
   );
 
   useEffect(() => {
-    void refreshFiles();
-  }, []);
+    if (token) {
+      void refreshFiles();
+    }
+  }, [token]);
 
   useEffect(() => {
     if (!selectedFile) {
@@ -63,8 +83,9 @@ function App() {
   }, [selectedFile]);
 
   async function refreshFiles(preferredFileId = null) {
+    if (!token) return;
     try {
-      const nextFiles = await listFiles();
+      const nextFiles = await listFiles(token);
       startTransition(() => {
         setFiles(nextFiles);
         setSelectedFileId((currentFileId) => {
@@ -95,7 +116,7 @@ function App() {
     }));
 
     try {
-      const summaryResponse = await getFileSummary(fileId);
+      const summaryResponse = await getFileSummary(fileId, token);
       setSummaryState({
         isLoading: false,
         data: summaryResponse.summary || '',
@@ -114,7 +135,7 @@ function App() {
     setUploadState({ isUploading: true, error: '' });
 
     try {
-      const createdFile = await uploadFile(file);
+      const createdFile = await uploadFile(file, token);
       await refreshFiles(createdFile.id);
     } catch (error) {
       setUploadState({ isUploading: false, error: error.message });
@@ -129,8 +150,8 @@ function App() {
     setPageError('');
 
     try {
-      await processFile(fileId);
-      const updatedFile = await getFile(fileId);
+      await processFile(fileId, token);
+      const updatedFile = await getFile(fileId, token);
 
       startTransition(() => {
         setFiles((currentFiles) =>
@@ -173,10 +194,16 @@ function App() {
     }));
 
     try {
-      const eventSource = askQuestionStream(selectedFile.id, question);
+      const eventSource = askQuestionStream(selectedFile.id, question, token);
 
       eventSource.onmessage = (event) => {
         const chunk = event.data;
+        if (chunk === '[DONE]') {
+          eventSource.close();
+          setQuestionState({ isAsking: false, error: '' });
+          return;
+        }
+
         setQaHistoryByFile((current) => {
           const fileHistory = current[selectedFile.id] || [];
           return {
@@ -215,8 +242,19 @@ function App() {
 
   const selectedHistory = selectedFile ? qaHistoryByFile[selectedFile.id] || [] : [];
 
+  if (!token) {
+    return <AuthPanel onLogin={handleLogin} />;
+  }
+
   return (
     <main className="app-shell">
+      <header className="app-header">
+        <div className="user-info">
+          <span>{userEmail}</span>
+          <button className="button-link" onClick={handleLogout}>Logout</button>
+        </div>
+      </header>
+
       <section className="hero-banner">
         <div>
           <p className="eyebrow">Panscience SDE-1 Assessment</p>
@@ -263,6 +301,7 @@ function App() {
         <div className="workspace-main">
           <MediaPreviewPanel
             file={selectedFile}
+            token={token}
             mediaRef={mediaRef}
             latestPlaybackTime={latestPlaybackTime}
             onJumpToTimestamp={handleJumpToTimestamp}

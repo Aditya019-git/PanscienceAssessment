@@ -1,20 +1,27 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
-async function request(path, options = {}) {
-  const response = await fetch(`${API_BASE}${path}`, options);
+async function request(path, options = {}, token = null) {
+  const headers = { ...options.headers };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers
+  });
 
   if (!response.ok) {
     let message = 'Request failed';
 
     try {
-      const payload = await response.json();
-      message = payload.message || message;
-    } catch {
-      try {
-        message = await response.text();
-      } catch {
-        message = 'Request failed';
+      const text = await response.text();
+      if (text) {
+        const payload = JSON.parse(text);
+        message = payload.message || message;
       }
+    } catch {
+      message = 'Request failed';
     }
 
     throw new Error(message);
@@ -26,53 +33,55 @@ async function request(path, options = {}) {
 
   const contentType = response.headers.get('content-type') || '';
   if (contentType.includes('application/json')) {
-    return response.json();
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
   }
 
   return response.text();
 }
 
-export function listFiles() {
-  return request('/files');
+export function listFiles(token) {
+  return request('/files', {}, token);
 }
 
-export function getFile(fileId) {
-  return request(`/files/${fileId}`);
+export function getFile(fileId, token) {
+  return request(`/files/${fileId}`, {}, token);
 }
 
-export function uploadFile(file) {
+export function uploadFile(file, token) {
   const formData = new FormData();
   formData.append('file', file);
 
   return request('/files/upload', {
     method: 'POST',
     body: formData
-  });
+  }, token);
 }
 
-export function processFile(fileId) {
+export function processFile(fileId, token) {
   return request(`/files/${fileId}/process`, {
     method: 'POST'
-  });
+  }, token);
 }
 
-export function getFileSummary(fileId) {
-  return request(`/files/${fileId}/summary`);
+export function getFileSummary(fileId, token) {
+  return request(`/files/${fileId}/summary`, {}, token);
 }
 
-export function askQuestion(fileId, question) {
+export function askQuestion(fileId, question, token) {
   return request(`/files/${fileId}/questions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({ question })
-  });
+  }, token);
 }
 
-export function askQuestionStream(fileId, question) {
+export function askQuestionStream(fileId, question, token) {
   const url = new URL(`${API_BASE}/files/${fileId}/questions/stream`);
   url.searchParams.append('question', question);
+  url.searchParams.append('token', token);
   return new EventSource(url.toString());
 }
 

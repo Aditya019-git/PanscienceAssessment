@@ -12,6 +12,7 @@ function formatClock(seconds) {
 
 export function MediaPreviewPanel({
   file,
+  token,
   mediaRef,
   latestPlaybackTime,
   onJumpToTimestamp
@@ -29,7 +30,7 @@ export function MediaPreviewPanel({
     );
   }
 
-  const contentUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/files/${file.id}/content`;
+  const contentUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/files/${file.id}/content?token=${token}`;
   const isMedia = file.fileCategory === 'AUDIO' || file.fileCategory === 'VIDEO';
 
   return (

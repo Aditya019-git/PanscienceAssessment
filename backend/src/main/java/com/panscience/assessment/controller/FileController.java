@@ -12,6 +12,7 @@ import com.panscience.assessment.service.FileUploadService;
 import com.panscience.assessment.service.QuestionAnswerService;
 import com.panscience.assessment.service.StoredFileResource;
 import jakarta.validation.Valid;
+import reactor.core.publisher.Flux;
 import java.net.URI;
 import java.util.List;
 import org.springframework.core.io.PathResource;
@@ -113,7 +114,7 @@ public class FileController {
     }
 
     @GetMapping(value = "/{id}/questions/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> answerQuestionStream(
+    public Flux<String> streamAnswer(
         @PathVariable Long id,
         @RequestParam String question
     ) {
