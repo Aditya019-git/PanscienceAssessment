@@ -3,7 +3,7 @@
 A powerful, AI-driven document and media processing web application built for the SDE-1 programming assessment. This application allows users to upload files (PDFs, Videos, Audio), automatically extracts text and transcripts, and provides a real-time, ChatGPT-like interface to ask questions about the uploaded content using hybrid semantic search.
 
 ## Tech Stack
-- **Backend:** Spring Boot 3, Java 17, PostgreSQL, Redis, Maven
+- **Backend:** Spring Boot 3.4, Java 17, PostgreSQL, Redis, Maven
 - **Frontend:** React 19, Vite, TailwindCSS (via plain CSS structure)
 - **AI Integration:** OpenAI API (GPT-4o-mini, text-embedding-3-small, Whisper-1)
 - **Testing:** JUnit 5, Mockito, Testcontainers, JaCoCo
@@ -14,6 +14,7 @@ A powerful, AI-driven document and media processing web application built for th
 - ? **Vector Search:** Chunk-based embeddings for grounded, context-aware AI answers.
 - ?? **Real-Time Streaming:** Server-Sent Events (SSE) for a responsive, typing-effect chatbot.
 - ? **API Documentation:** Interactive Swagger UI.
+- ? **Smart Fallback:** Local document search fallback if AI quota is reached.
 - ? **High Test Coverage:** Strictly enforced 95%+ line coverage.
 
 ---
@@ -49,7 +50,7 @@ The application will be live at `http://localhost:5173`.
 
 ## Interactive API Documentation (Swagger)
 Once the backend is running, you can explore and test all REST endpoints directly in your browser!
-Navigate to: **[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)**
+Navigate to: **[http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)**
 
 > **Note:** To test secured endpoints in Swagger, first register/login via the `/api/auth` endpoints, copy the `token` from the response, and click the **Authorize** button at the top of the Swagger page.
 
