@@ -35,6 +35,7 @@ class OpenAiTranscriptionServiceTest {
         responseSpec = mock(RestClient.ResponseSpec.class);
 
         when(builder.baseUrl(anyString())).thenReturn(builder);
+        when(builder.defaultHeader(anyString(), any(String[].class))).thenReturn(builder);
         when(builder.build()).thenReturn(restClient);
 
         transcriptionService = new OpenAiTranscriptionService(builder, "test-key", "openai", "whisper-1");

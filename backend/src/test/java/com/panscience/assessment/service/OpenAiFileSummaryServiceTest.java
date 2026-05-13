@@ -31,6 +31,7 @@ class OpenAiFileSummaryServiceTest {
         responseSpec = mock(RestClient.ResponseSpec.class);
 
         when(builder.baseUrl(anyString())).thenReturn(builder);
+        when(builder.defaultHeader(anyString(), any(String[].class))).thenReturn(builder);
         when(builder.build()).thenReturn(restClient);
     }
 

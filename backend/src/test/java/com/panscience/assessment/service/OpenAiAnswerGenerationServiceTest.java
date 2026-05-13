@@ -33,8 +33,11 @@ class OpenAiAnswerGenerationServiceTest {
     @BeforeEach
     void setUp() {
         when(restClientBuilder.baseUrl(anyString())).thenReturn(restClientBuilder);
+        when(restClientBuilder.defaultHeader(anyString(), any(String[].class))).thenReturn(restClientBuilder);
         when(restClientBuilder.build()).thenReturn(restClient);
+        
         when(webClientBuilder.baseUrl(anyString())).thenReturn(webClientBuilder);
+        when(webClientBuilder.defaultHeader(anyString(), any(String[].class))).thenReturn(webClientBuilder);
         when(webClientBuilder.build()).thenReturn(webClient);
 
         service = new OpenAiAnswerGenerationService(restClientBuilder, webClientBuilder, "sk-test", "gpt-4");
