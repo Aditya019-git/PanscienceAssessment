@@ -11,7 +11,7 @@ class SecurityConfigTest {
 
     @Test
     void passwordEncoder_ReturnsBCryptPasswordEncoder() {
-        SecurityConfig config = new SecurityConfig(null);
+        SecurityConfig config = new SecurityConfig(null, null);
         PasswordEncoder encoder = config.passwordEncoder();
         assertNotNull(encoder);
         assertThat(encoder.encode("password")).isNotEqualTo("password");
@@ -19,7 +19,7 @@ class SecurityConfigTest {
 
     @Test
     void corsConfigurationSource_ReturnsValidSource() {
-        SecurityConfig config = new SecurityConfig(null);
+        SecurityConfig config = new SecurityConfig(null, null);
         CorsConfigurationSource source = config.corsConfigurationSource();
         assertNotNull(source);
     }
