@@ -256,7 +256,7 @@ function App() {
       </header>
 
       <section className="hero-banner">
-        <div>
+        <div className="hero-main">
           <p className="eyebrow">Panscience SDE-1 Assessment</p>
           <h1>Document and media intelligence workspace</h1>
           <p className="hero-copy">

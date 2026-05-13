@@ -24,13 +24,15 @@ public class OpenAiAnswerGenerationService implements AnswerGenerationService {
         RestClient.Builder restClientBuilder,
         WebClient.Builder webClientBuilder,
         @Value("${app.openai.api-key:}") String apiKey,
-        @Value("${app.openai.model:gpt-4.1-mini}") String model
+        @Value("${app.openai.model:gpt-4o-mini}") String model
     ) {
         this.restClient = restClientBuilder
             .baseUrl("https://api.openai.com/v1")
+            .defaultHeader("Authorization", "Bearer " + apiKey)
             .build();
         this.webClient = webClientBuilder
             .baseUrl("https://api.openai.com/v1")
+            .defaultHeader("Authorization", "Bearer " + apiKey)
             .build();
         this.apiKey = apiKey;
         this.model = model;

@@ -34,6 +34,7 @@ public class OpenAiTranscriptionService implements TranscriptionService {
     ) {
         this.restClient = restClientBuilder
             .baseUrl("https://api.openai.com/v1")
+            .defaultHeader("Authorization", "Bearer " + apiKey)
             .build();
         this.apiKey = apiKey;
         this.provider = provider;
