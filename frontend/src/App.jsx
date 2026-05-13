@@ -1,4 +1,4 @@
-import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { startTransition, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import {
   askQuestionStream,
   getFile,
@@ -61,7 +61,7 @@ function App() {
     if (token) {
       void refreshFiles();
     }
-  }, [token]);
+  }, [token, refreshFiles]);
 
   useEffect(() => {
     if (!selectedFile) {
@@ -80,9 +80,9 @@ function App() {
     if (selectedFile.processingStatus === 'READY') {
       void loadSummary(selectedFile.id);
     }
-  }, [selectedFile]);
+  }, [selectedFile, loadSummary]);
 
-  async function refreshFiles(preferredFileId = null) {
+  const refreshFiles = useCallback(async (preferredFileId = null) => {
     if (!token) return;
     try {
       const nextFiles = await listFiles(token);
@@ -106,9 +106,9 @@ function App() {
     } finally {
       setIsBooting(false);
     }
-  }
+  }, [token]);
 
-  async function loadSummary(fileId) {
+  const loadSummary = useCallback(async (fileId) => {
     setSummaryState((current) => ({
       ...current,
       isLoading: true,
@@ -129,7 +129,7 @@ function App() {
         error: error.message
       }));
     }
-  }
+  }, [token]);
 
   async function handleUpload(file) {
     setUploadState({ isUploading: true, error: '' });
@@ -215,7 +215,7 @@ function App() {
         });
       };
 
-      eventSource.onerror = (error) => {
+      eventSource.onerror = () => {
         eventSource.close();
         setQuestionState({ isAsking: false, error: 'Streaming interrupted' });
       };
