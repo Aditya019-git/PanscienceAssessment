@@ -160,6 +160,7 @@ class QuestionAnswerServiceTest {
         
         StepVerifier.create(result)
             .expectNextMatches(s -> s.contains("stream excerpt"))
+            .expectNext("[DONE]")
             .verifyComplete();
     }
 
@@ -213,6 +214,7 @@ class QuestionAnswerServiceTest {
             .expectNext(" supports")
             .expectNext(" chunk-based")
             .expectNext(" retrieval.")
+            .expectNext("[DONE]")
             .verifyComplete();
     }
 }
