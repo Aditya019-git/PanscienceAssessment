@@ -2,9 +2,9 @@ spring:
   application:
     name: assessment-backend
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:panscience}
-    username: ${POSTGRES_USER:panscience}
-    password: ${POSTGRES_PASSWORD:panscience}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:PanScience}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:root}
   jpa:
     hibernate:
       ddl-auto: validate

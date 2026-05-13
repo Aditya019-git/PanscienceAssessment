@@ -94,10 +94,12 @@ public class QuestionAnswerService {
         }
 
         if (answerGenerationService.isAvailable()) {
-            return Flux.concat(
-                answerGenerationService.streamAnswer(storedFile, normalizedQuestion, retrievedChunks),
-                Flux.just("[DONE]")
-            );
+            return answerGenerationService.streamAnswer(storedFile, normalizedQuestion, retrievedChunks)
+                .concatWith(Flux.just("[DONE]"))
+                .onErrorResume(e -> {
+                    String fallback = "\n\n" + fallbackAnswer(toSourceResponses(retrievedChunks), true);
+                    return Flux.just(fallback, "[DONE]");
+                });
         }
 
         return Flux.just(fallbackAnswer(toSourceResponses(retrievedChunks), false), "[DONE]");
